@@ -57,3 +57,4 @@ There are two ways to load the file in the widget:
 2. ***CsvRow*** has ```IsHeader``` property. This property will be set to true if only first column has a value, otherwise it'll be set to false.
 3. ***CsvColumn*** has ```IsMarked``` property. This property will be set to true if the value of the column matches the 'YesMarker' pattern. By default, 'YesMarker' is set to 'x', though you can change it through the properties of ***CsvContentWidget***. You can use ```IsMarked``` property to change the appearance of column; e.g. show a checkmark image.
 4. You can use comments in your CSV files which will not be displayed in the widget. To use comments, use ```/* this is a comment */``` syntax.
+5. Widget supports multiple views. To use a different view add a new file to your MVC/Views/CSVContent folder, for example: Custom.cshtml. Then in page editor set the ***ViewName*** property of the widget to ***Custom***
