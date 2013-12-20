@@ -108,9 +108,7 @@ namespace SitefinityWebApp.Mvc.Models
 
 		#endregion
 
-		
-
-		
+		#region Non-public methods
 
 		private string DownloadFile()
 		{
@@ -145,27 +143,25 @@ namespace SitefinityWebApp.Mvc.Models
 				var row = new CsvRow() { IsHeader = true };
 				foreach (var col in line)
 				{
-					var colVal = col.Trim();
-					colVal = this.commentsRegex.Replace(colVal, "");
-
-					row.Columns.Add(new CsvColumn() { 
-						Value = colVal,
-						IsMarked = colVal.Equals(this.yesMarker, StringComparison.InvariantCultureIgnoreCase)
+					row.Columns.Add(new CsvColumn()
+					{
+						Value = this.RemoveComments(col),
+						IsMarked = this.IsColumnMarked(col)
 					});
 				}
 
-				for (var i = 1; i < row.Columns.Count; i++)
-				{
-					if(!string.IsNullOrEmpty(row.Columns[i].Value))
-					{
-						row.IsHeader = false;
-						break;
-					}
-				}
+				row.IsHeader = this.IsHeaderRow(row);
 
 				table.Rows.Add(row);
 			}
 
+			this.EnsureTableSymmetry(table);
+
+			return table;
+		}
+  
+		private void EnsureTableSymmetry(CsvTable table)
+		{
 			var maxColCount = table.Rows.Max(r => r.Columns.Count);
 			foreach (var row in table.Rows)
 			{
@@ -174,14 +170,43 @@ namespace SitefinityWebApp.Mvc.Models
 					row.Columns.Add(new CsvColumn() { IsPlaceholder = true });
 				}
 			}
-
-			return table;
+		}
+  
+		private bool IsHeaderRow(CsvRow row)
+		{
+			for (var i = 1; i < row.Columns.Count; i++)
+			{
+				if (!string.IsNullOrEmpty(row.Columns[i].Value))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+  
+		private string RemoveComments(string columnValue)
+		{
+			return this.commentsRegex.Replace(columnValue.Trim(), "");
+		}
+  
+		private bool IsColumnMarked(string columnValue)
+		{
+			return columnValue.Trim().Equals(this.yesMarker, StringComparison.InvariantCultureIgnoreCase);
 		}
 
+		#endregion
+
+		#region CSV view model types
+
+		/// <summary>
+		/// Represents a Csv table that was built from the file.
+		/// </summary>
 		public class CsvTable
 		{
-			public int ColumnCount { get; set; }
-
+			/// <summary>
+			/// Gets a list of all <see cref="CsvRow"/> instances
+			/// that represent the rows of the table.
+			/// </summary>
 			public List<CsvRow> Rows
 			{
 				get
@@ -193,10 +218,20 @@ namespace SitefinityWebApp.Mvc.Models
 			private List<CsvRow> rows;
 		}
 
+		/// <summary>
+		/// Represents a single row of the table.
+		/// </summary>
 		public class CsvRow
 		{
+			/// <summary>
+			/// Gets or sets the value indicating if the row is a header.
+			/// </summary>
 			public bool IsHeader { get; set; }
 
+			/// <summary>
+			/// Gets a list of all <see cref="CsvColumn"/> instances
+			/// that represent the columns of a single row.
+			/// </summary>
 			public List<CsvColumn> Columns 
 			{
 				get
@@ -208,16 +243,34 @@ namespace SitefinityWebApp.Mvc.Models
 			private List<CsvColumn> columns;
 		}
 
+		/// <summary>
+		/// Represents a single column of a row of the table.
+		/// </summary>
 		public class CsvColumn
 		{
+			/// <summary>
+			/// If the value of the column mathched the "yes marker" pattern
+			/// returns true; otherwise false.
+			/// </summary>
 			public bool IsMarked { get; set; }
 
+			/// <summary>
+			/// If the column was added only for symmetry, this will be true;
+			/// otherwise false.
+			/// </summary>
 			public bool IsPlaceholder { get; set; }
 
+			/// <summary>
+			/// Gets or sets the value of the column.
+			/// </summary>
 			public string Value { get; set; }
 		}
-		
-		public sealed class CsvReader : System.IDisposable
+
+		#endregion
+
+		#region CSV parser
+
+		private sealed class CsvReader : IDisposable
 		{
 			public CsvReader(String contents)
 			{
@@ -301,10 +354,16 @@ namespace SitefinityWebApp.Mvc.Models
 			private static char[] CHARACTERS_THAT_MUST_BE_QUOTED = { ',', '"', '\n' };
 		}
 
+		#endregion
+
+		#region Private fields and constants
+
 		private string csvFileUrl;
 		private string fileContents;
-		private string yesMarker;
+		private readonly string yesMarker;
 		private CsvTable table;
-		private Regex commentsRegex = new Regex(@"/\*((?!\*/).)*\*/", RegexOptions.Singleline | RegexOptions.Compiled);
+		private readonly Regex commentsRegex = new Regex(@"/\*((?!\*/).)*\*/", RegexOptions.Singleline | RegexOptions.Compiled);
+
+		#endregion
 	}
 }
