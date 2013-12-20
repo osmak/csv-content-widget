@@ -1,0 +1,4 @@
+﻿Header 1
+Feature 1, x, x, ,
+Feature 2, , X, x
+Feature 3

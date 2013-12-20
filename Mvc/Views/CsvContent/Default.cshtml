@@ -1,0 +1,23 @@
+@model SitefinityWebApp.Mvc.Models.CsvContentModel
+
+@if(string.IsNullOrEmpty(Model.ErrorMessage)) {
+
+<table>
+    @foreach (var row in Model.Table.Rows)
+    {
+        <tr class="@(row.IsHeader ? "header" : "justline")">
+            @foreach (var col in row.Columns)
+            {
+                <td>
+                    <span class="@(col.IsMarked ? "marked" : "empty")">
+                        @col.Value
+                    </span>
+                </td>
+            }
+        </tr>
+    }
+</table>
+    
+} else {
+    <strong>@Model.ErrorMessage</strong>   
+}
