@@ -49,3 +49,10 @@ Once we load this through a CsvContent widget, we can visualize this in our view
 There are two ways to load the file in the widget:
 1. When you drag widget on the page, click edit and set the CsvFileUrl property to the url of the csv file. If the file is located in the same site as the widget, you can use tilde (~) url. E.g. ~/docs/mysoftwarefeatures.csv
 2. In your controller, when initializing the model, you can use the constructor with `string fileContents` argument and provide the string representation of the CSV file
+
+### Features
+
+1. ***CsvTable*** is always symmetrical. Meaning regardless of the fact that some rows in CSV file may have different number of columns, every row of the table will have equal number of columns. Columns that have been added for symmetry will have property ```IsPlaceholder``` set to true.
+2. ***CsvRow*** has ```IsHeader``` property. This property will be set to true if only first column has a value, otherwise it'll be set to false.
+3. ***CsvColumn*** has ```IsMarked``` property. This property will be set to true if the value of the column matches the 'YesMarker' pattern. By default, 'YesMarker' is set to 'x', though you can change it through the properties of ***CsvContentWidget***. You can use ```IsMarked``` property to change the appearance of column; e.g. show a checkmark image.
+4. You can use comments in your CSV files which will not be displayed in the widget. To use comments, use ```/* this is a comment */``` syntax.
