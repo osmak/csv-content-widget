@@ -47,6 +47,7 @@ Once we load this through a CsvContent widget, we can visualize this in our view
 ### How to load a file?
 
 There are two ways to load the file in the widget:
+
 1. When you drag widget on the page, click edit and set the CsvFileUrl property to the url of the csv file. If the file is located in the same site as the widget, you can use tilde (~) url. E.g. ~/docs/mysoftwarefeatures.csv
 2. In your controller, when initializing the model, you can use the constructor with `string fileContents` argument and provide the string representation of the CSV file
 
